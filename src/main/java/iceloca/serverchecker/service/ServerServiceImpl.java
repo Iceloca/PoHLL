@@ -45,9 +45,20 @@ public class ServerServiceImpl implements ServerService{
     }
 
     @Override
-    public boolean checkServer(String ip) throws IOException {
-        InetAddress address = InetAddress.getByName(ip);
-        return address.isReachable(5000);
+    public boolean checkServer(String ip) {
+        try {
+            InetAddress address = InetAddress.getByName(ip);
+            return address.isReachable(5000);
+        }catch (IOException exception){
+            return false;
+        }
+    }
+
+    @Override
+    public Server updateServerStatusIp(String ip) {
+        Server server = findByIp(ip);
+        server.setIsUp(checkServer(ip));
+        return saveServer(server);
     }
 
 

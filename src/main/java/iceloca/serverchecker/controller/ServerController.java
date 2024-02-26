@@ -8,7 +8,6 @@ import iceloca.serverchecker.service.ServerService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -33,19 +32,20 @@ public class ServerController {
 
     @GetMapping("/check/{ip}")
     public  boolean checkIp(@PathVariable() String ip){
-        try {
             return service.checkServer(ip);
-        }catch (IOException exception){
-            return false;
-        }
     }
 
-    @PutMapping("update_server")
+    @PutMapping("/update_server")
     public Server updateServer(@RequestBody Server server){
         return  service.updateServer(server);
     }
 
-    @DeleteMapping("delete_server/{ip}")
+    @PutMapping("/update_server_status")
+    public Server updateServerStatusIp(@RequestParam String ip){
+        return  service.updateServerStatusIp(ip);
+    }
+
+    @DeleteMapping("/delete_server/{ip}")
     public void deleteServer(@PathVariable String ip){
         service.deleteServer(ip);
     }
