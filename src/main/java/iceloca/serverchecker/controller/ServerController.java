@@ -17,8 +17,8 @@ import java.util.List;
 public class ServerController {
     private final ServerService service ;
     @GetMapping
-    public List<Server> FindAllServers() {
-        return  service.FindAllServers();
+    public List<Server> findAllServers() {
+        return  service.findAllServers();
     }
 
     @PostMapping("save_server")

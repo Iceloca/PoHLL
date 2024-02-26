@@ -19,7 +19,7 @@ public class ServerServiceImpl implements ServerService{
 
     private final ServerRepository repository;
     @Override
-    public List<Server> FindAllServers() {
+    public List<Server> findAllServers() {
         return repository.findAll();
     }
 
