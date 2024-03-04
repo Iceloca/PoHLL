@@ -1,10 +1,9 @@
 package iceloca.serverchecker.controller;
 
 import iceloca.serverchecker.model.Server;
+
+
 import iceloca.serverchecker.service.ServerService;
-
-
-
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

@@ -10,7 +10,7 @@ import lombok.*;
 public class Server {
     @Id
     @GeneratedValue
-    private  Long id;
+    private Long id;
     private String name;
     @Column(unique = true)
     private String ip;
