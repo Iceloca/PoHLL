@@ -3,6 +3,7 @@ package iceloca.serverchecker.controller;
 import iceloca.serverchecker.model.Server;
 
 
+import iceloca.serverchecker.model.dto.ServerDTO;
 import iceloca.serverchecker.service.ServerService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -15,12 +16,12 @@ import java.util.List;
 public class ServerController {
     private final ServerService service ;
     @GetMapping
-    public List<Server> findAllServers() {
+    public List<ServerDTO> findAllServers() {
         return  service.findAllServers();
     }
 
-    @PostMapping("save_server")
-    public Server saveServer(@RequestBody Server server) {
+    @PostMapping("/save")
+    public Server saveServer(@RequestBody ServerDTO server) {
         return service.saveServer(server);
     }
 
@@ -34,17 +35,17 @@ public class ServerController {
             return service.checkServer(ip);
     }
 
-    @PutMapping("/update_server")
-    public Server updateServer(@RequestBody Server server){
+    @PutMapping("/update")
+    public Server updateServer(@RequestBody ServerDTO server){
         return  service.updateServer(server);
     }
 
-    @PutMapping("/update_server_status")
+    @PutMapping("/update_status")
     public Server updateServerStatusIp(@RequestParam String ip){
         return  service.updateServerStatusIp(ip);
     }
 
-    @DeleteMapping("/delete_server/{ip}")
+    @DeleteMapping("/delete/{ip}")
     public void deleteServer(@PathVariable String ip){
         service.deleteServer(ip);
     }
