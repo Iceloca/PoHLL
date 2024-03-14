@@ -3,6 +3,7 @@ package iceloca.serverchecker.controller;
 
 import iceloca.serverchecker.model.Watchlist;
 
+import iceloca.serverchecker.model.dto.ServerDTO;
 import iceloca.serverchecker.model.dto.WatchlistDTO;
 import iceloca.serverchecker.service.WatchlistService;
 import lombok.AllArgsConstructor;
@@ -30,10 +31,10 @@ public class WatchlistController {
     public  Watchlist findByName(@PathVariable() String name){
         return watchlistService.findByName(name);
     }
-//    @GetMapping("/all/{name}")
-//    public  List<Watchlist> findAllByName(@PathVariable() String name){
-//        return watchlistService.findAllByName(name);
-//    }
+    @GetMapping("/all/{name}")
+    public  List<ServerDTO> findAllByName(@PathVariable() String name){
+        return watchlistService.findAllByName(name);
+    }
 
     @PutMapping("/update")
     public Watchlist updateWatchlist(@RequestBody WatchlistDTO watchlistDTO){

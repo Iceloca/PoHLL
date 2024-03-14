@@ -2,9 +2,11 @@ package iceloca.serverchecker.service;
 
 import iceloca.serverchecker.model.Server;
 import iceloca.serverchecker.model.Watchlist;
+import iceloca.serverchecker.model.dto.ServerDTO;
 import iceloca.serverchecker.model.dto.WatchlistDTO;
 import iceloca.serverchecker.repository.ServerRepository;
 import iceloca.serverchecker.repository.WatchlistRepository;
+import iceloca.serverchecker.service.utility.ServerDTOUtility;
 import iceloca.serverchecker.service.utility.WatchlistDTOUtility;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -36,7 +38,7 @@ public class WatchlistService {
     public Watchlist removeServerFromWatchlist(String name, String ip){
         return watchlistRepository.save(editServerSet(name,ip,Boolean.FALSE));
     }
-    public Watchlist editServerSet(String name, String ip, Boolean Add){
+    public Watchlist editServerSet(String name, String ip, Boolean add){
         Watchlist watchlist = findByName(name);
         Server server = serverRepository.findByIp(ip);
         if(watchlist == null || server == null)
@@ -45,7 +47,7 @@ public class WatchlistService {
         if (serverSet == null)
             serverSet = new HashSet<>();
         Set<Watchlist> watchlistSet = server.getWatchlistSet();
-        if(Add) {
+        if(Boolean.TRUE.equals(add)) {
             if(watchlistSet == null)
                 watchlistSet = new HashSet<>();
             watchlistSet.add(watchlist);
@@ -68,6 +70,13 @@ public class WatchlistService {
         if(oldWatchlist.isEmpty())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         watchlist.setServerSet(oldWatchlist.get().getServerSet());
-        return watchlistRepository.save(watchlist);}
+        return watchlistRepository.save(watchlist);
+    }
+    public List<ServerDTO> findAllByName(String name) {
+        return findByName(name).getServerSet()
+                .stream()
+                .map(ServerDTOUtility::buildDTOFromServer)
+                .toList();
+    }
 
 }
