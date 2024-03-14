@@ -1,4 +1,4 @@
-package iceloca.serverchecker.service;
+package iceloca.serverchecker.service.utility;
 
 import iceloca.serverchecker.model.Server;
 import iceloca.serverchecker.model.ServerType;

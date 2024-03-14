@@ -8,6 +8,7 @@ import iceloca.serverchecker.model.ServerType;
 import iceloca.serverchecker.model.dto.ServerDTO;
 import iceloca.serverchecker.repository.ServerRepository;
 import iceloca.serverchecker.repository.ServerTypeRepository;
+import iceloca.serverchecker.service.utility.ServerDTOUtility;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

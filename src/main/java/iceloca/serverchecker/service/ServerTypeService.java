@@ -3,6 +3,7 @@ package iceloca.serverchecker.service;
 import iceloca.serverchecker.model.ServerType;
 import iceloca.serverchecker.model.dto.ServerDTO;
 import iceloca.serverchecker.repository.ServerTypeRepository;
+import iceloca.serverchecker.service.utility.ServerDTOUtility;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +23,6 @@ public class ServerTypeService {
     }
 
     public ServerType findByName(String name) {
-
         return repository.findByName(name);
     }
     public List<ServerDTO> findAllByName(String name) {

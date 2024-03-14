@@ -13,35 +13,35 @@ import java.util.List;
 @RequestMapping("/api/server_types")
 @AllArgsConstructor
 public class ServerTypeController {
-    private final ServerTypeService service;
+    private final ServerTypeService serverTypeService;
 
     @GetMapping
     public List<ServerType> findAllServers() {
-        return  service.findAllServerTypes();
+        return  serverTypeService.findAllServerTypes();
     }
 
     @PostMapping("/save")
     public ServerType saveServer(@RequestBody ServerType serverType) {
-        return service.saveServerType(serverType);
+        return serverTypeService.saveServerType(serverType);
     }
 
     @GetMapping("/{name}")
     public  ServerType findByName(@PathVariable() String name){
-        return service.findByName(name);
+        return serverTypeService.findByName(name);
     }
     @GetMapping("/all/{name}")
     public  List<ServerDTO> findAllByName(@PathVariable() String name){
-        return service.findAllByName(name);
+        return serverTypeService.findAllByName(name);
     }
 
     @PutMapping("/update")
     public ServerType updateServer(@RequestBody ServerType serverType){
-        return  service.updateServerType(serverType);
+        return  serverTypeService.updateServerType(serverType);
     }
 
 
     @DeleteMapping("/delete/{name}")
     public void deleteServer(@PathVariable String name){
-        service.deleteServerType(name);
+        serverTypeService.deleteServerType(name);
     }
 }
