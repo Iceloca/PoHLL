@@ -17,12 +17,17 @@ public class ServerDTOUtility {
                 .build();
     }
     public ServerDTO buildDTOFromServer(Server server){
+        String serverTypeName;
+        if (server.getServerType() == null)
+            serverTypeName = null;
+        else
+            serverTypeName = server.getServerType().getName();
         return ServerDTO.builder()
                 .id(server.getId())
                 .isUp(server.getIsUp())
                 .name(server.getName())
                 .ip(server.getIp())
-                .serverType(server.getServerType().getName())
+                .serverType(serverTypeName)
                 .build();
     }
 }

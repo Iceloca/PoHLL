@@ -6,6 +6,7 @@ import iceloca.serverchecker.model.Server;
 import iceloca.serverchecker.model.dto.ServerDTO;
 import iceloca.serverchecker.service.ServerService;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.List;
 @RequestMapping("/api/servers")
 @AllArgsConstructor
 public class ServerController {
+
     private final ServerService serverService;
     @GetMapping
     public List<ServerDTO> findAllServers() {
@@ -25,6 +27,7 @@ public class ServerController {
         return serverService.saveServer(server);
     }
 
+    @Cacheable("server")
     @GetMapping("/{ip}")
     public  Server findByIp(@PathVariable() String ip){
         return serverService.findByIp(ip);

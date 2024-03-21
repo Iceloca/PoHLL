@@ -30,7 +30,12 @@ public class WatchlistService {
         return watchlistRepository.save(WatchlistDTOUtility.buildWatchlistFromDTO(watchlistDTO));
     }
     @Transactional
-    public void deleteWatchlist(String name) {watchlistRepository.deleteByName(name);}
+    public void deleteWatchlist(String name) {
+        Watchlist watchlist = watchlistRepository.findByName(name);
+        for(Server server : watchlist.getServerSet())
+            server.getWatchlistSet().remove(watchlist);
+        watchlistRepository.deleteByName(name);
+    }
     public  Watchlist findByName(String name) {return  watchlistRepository.findByName(name);}
     public Watchlist addServerToWatchlist(String name, String ip){
         return watchlistRepository.save(editServerSet(name, ip, Boolean.TRUE));
@@ -42,7 +47,7 @@ public class WatchlistService {
         Watchlist watchlist = findByName(name);
         Server server = serverRepository.findByIp(ip);
         if(watchlist == null || server == null)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"No such watchlist or server");
         Set<Server> serverSet = watchlist.getServerSet();
         if (serverSet == null)
             serverSet = new HashSet<>();

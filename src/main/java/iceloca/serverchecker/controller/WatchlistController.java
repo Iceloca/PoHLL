@@ -15,6 +15,7 @@ import java.util.List;
 @RequestMapping("/api/watchlists")
 @AllArgsConstructor
 public class WatchlistController {
+
     WatchlistService watchlistService;
 
     @GetMapping
