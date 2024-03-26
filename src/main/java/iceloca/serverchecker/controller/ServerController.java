@@ -6,7 +6,6 @@ import iceloca.serverchecker.model.Server;
 import iceloca.serverchecker.model.dto.ServerDTO;
 import iceloca.serverchecker.service.ServerService;
 import lombok.AllArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,10 +26,9 @@ public class ServerController {
         return serverService.saveServer(server);
     }
 
-    @Cacheable("server")
-    @GetMapping("/{ip}")
-    public  Server findByIp(@PathVariable() String ip){
-        return serverService.findByIp(ip);
+    @GetMapping("/{id}")
+    public  Server findByIp(@PathVariable() Long id){
+        return serverService.findById(id);
     }
 
     @GetMapping("/check/{ip}")
@@ -44,12 +42,12 @@ public class ServerController {
     }
 
     @PutMapping("/update_status")
-    public Server updateServerStatusIp(@RequestParam String ip){
-        return  serverService.updateServerStatusIp(ip);
+    public Server updateServerStatusIp(@RequestParam Long id){
+        return  serverService.updateServerStatusIp(id);
     }
 
-    @DeleteMapping("/delete/{ip}")
-    public void deleteServer(@PathVariable String ip){
-        serverService.deleteServer(ip);
+    @DeleteMapping("/delete/{id}")
+    public void deleteServer(@PathVariable Long id){
+        serverService.deleteServer(id);
     }
 }

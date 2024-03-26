@@ -22,7 +22,7 @@ public class Server {
     @Column(unique = true)
     private String ip;
     private Boolean isUp;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "server_type_id")
 
     private ServerType serverType;

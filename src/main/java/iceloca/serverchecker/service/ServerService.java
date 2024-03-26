@@ -3,6 +3,8 @@ package iceloca.serverchecker.service;
 import java.io.*;
 import java.net.*;
 
+import iceloca.serverchecker.cache.ServerCache;
+import iceloca.serverchecker.cache.ServerTypeCache;
 import iceloca.serverchecker.model.Server;
 import iceloca.serverchecker.model.ServerType;
 import iceloca.serverchecker.model.dto.ServerDTO;
@@ -23,6 +25,8 @@ public class ServerService {
 
     private final ServerRepository serverRepository;
     private  final ServerTypeRepository serverTypeRepository;
+    private final ServerCache serverCache;
+    private final ServerTypeCache serverTypeCache;
     public List<ServerDTO> findAllServers() {
         return serverRepository.findAll().stream()
                 .map(ServerDTOUtility::buildDTOFromServer)
@@ -31,16 +35,26 @@ public class ServerService {
 
     public Server saveServer(ServerDTO serverDTO) {
         ServerType serverType = serverTypeRepository.findByName(serverDTO.getServerType());
-        if(serverType == null){
+        if(serverType == null && serverDTO.getServerType() != null){
             serverType = new ServerType();
             serverType.setName(serverDTO.getServerType());
         }
         Server server = ServerDTOUtility.buildServerFromDTO(serverDTO, serverType);
+        serverCache.put(server.getId(),server);
+        Server oldServer = findById(server.getId());
+        if(oldServer != null && oldServer.getServerType() != null   )
+            serverTypeCache.remove(server.getServerType().getId());
         return serverRepository.save(server);
     }
 
-    public Server findByIp(String ip) {
-        return serverRepository.findByIp(ip);
+    public Server findById(Long id) {
+        Server server = serverCache.get(id);
+        if(server != null)
+            return server;
+        server = serverRepository.findById(id).orElse(null);
+        if(server != null)
+            serverCache.put(server.getId(),server);
+        return server;
     }
 
     public Server updateServer(ServerDTO serverDTO) {
@@ -53,8 +67,15 @@ public class ServerService {
     }
 
     @Transactional
-    public void deleteServer(String ip) {
-        serverRepository.deleteByIp(ip);
+    public void deleteServer(Long id) {
+        serverCache.remove(id);
+        Server oldServer = findById(id);
+        if (oldServer != null) {
+            ServerType serverType = oldServer.getServerType();
+            if (serverType != null)
+                serverTypeCache.remove(serverType.getId());
+        }
+        serverRepository.deleteById(id);
     }
 
     public boolean checkServer(String ip) {
@@ -66,11 +87,14 @@ public class ServerService {
         }
     }
 
-    public Server updateServerStatusIp(String ip) {
-        Server server = findByIp(ip);
+    public Server updateServerStatusIp(Long id) {
+        Server server = findById(id);
         if(server == null)
             return null;
-        server.setIsUp(checkServer(ip));
+        server.setIsUp(checkServer(server.getIp()));
+        if (server.getServerType() != null)
+            serverTypeCache.remove(server.getServerType().getId());
+        serverCache.put(server.getId(),server);
         return serverRepository.save(server);
     }
 

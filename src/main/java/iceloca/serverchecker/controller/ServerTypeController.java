@@ -40,8 +40,8 @@ public class ServerTypeController {
     }
 
 
-    @DeleteMapping("/delete/{name}")
-    public void deleteServer(@PathVariable String name){
-        serverTypeService.deleteServerType(name);
+    @DeleteMapping("/delete/{id}")
+    public void deleteServer(@PathVariable Long id){
+        serverTypeService.deleteServerType(id);
     }
 }

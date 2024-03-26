@@ -12,8 +12,11 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -30,21 +33,26 @@ public class WatchlistService {
         return watchlistRepository.save(WatchlistDTOUtility.buildWatchlistFromDTO(watchlistDTO));
     }
     @Transactional
-    public void deleteWatchlist(String name) {
-        Watchlist watchlist = watchlistRepository.findByName(name);
-        for(Server server : watchlist.getServerSet())
-            server.getWatchlistSet().remove(watchlist);
-        watchlistRepository.deleteByName(name);
+    public void deleteWatchlist(Long id) {
+        Optional<Watchlist>  watchlist= watchlistRepository.findById(id);
+        if (watchlist.isEmpty())
+            return;
+        for(Server server : watchlist.get().getServerSet())
+            server.getWatchlistSet().remove(watchlist.get());
+        watchlistRepository.deleteById(id);
     }
-    public  Watchlist findByName(String name) {return  watchlistRepository.findByName(name);}
-    public Watchlist addServerToWatchlist(String name, String ip){
-        return watchlistRepository.save(editServerSet(name, ip, Boolean.TRUE));
+    public  Watchlist findById(Long id) {return  watchlistRepository.findById(id).orElse(null);}
+
+    public Watchlist addServerToWatchlist(Long id, String ip){
+        return watchlistRepository.save(editServerSet(id, ip, Boolean.TRUE));
     }
-    public Watchlist removeServerFromWatchlist(String name, String ip){
-        return watchlistRepository.save(editServerSet(name,ip,Boolean.FALSE));
+    public Watchlist removeServerFromWatchlist(Long id, String ip){
+        return watchlistRepository.save(editServerSet(id,ip,Boolean.FALSE));
     }
-    public Watchlist editServerSet(String name, String ip, Boolean add){
-        Watchlist watchlist = findByName(name);
+
+
+    public Watchlist editServerSet(Long id, String ip, Boolean add){
+        Watchlist watchlist = findById(id);
         Server server = serverRepository.findByIp(ip);
         if(watchlist == null || server == null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"No such watchlist or server");
@@ -77,8 +85,23 @@ public class WatchlistService {
         watchlist.setServerSet(oldWatchlist.get().getServerSet());
         return watchlistRepository.save(watchlist);
     }
-    public List<ServerDTO> findAllByName(String name) {
-        return findByName(name).getServerSet()
+    public Watchlist updateWatchlistStatus (String name){
+        Watchlist watchlist = watchlistRepository.findByName(name);
+        if (watchlist == null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        RestTemplate restTemplate = new RestTemplate();
+        for(Server server : watchlist.getServerSet()){
+
+            URI url = UriComponentsBuilder.fromUriString("http://localhost:8080/api/servers/update_status")
+                    .queryParam("ip",server.getIp())
+                    .build().toUri();
+
+            restTemplate.put(url,null);
+        }
+        return watchlistRepository.findByName(name);
+    }
+    public List<ServerDTO> findAllById(Long id) {
+        return findById(id).getServerSet()
                 .stream()
                 .map(ServerDTOUtility::buildDTOFromServer)
                 .toList();

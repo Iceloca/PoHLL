@@ -12,3 +12,5 @@ spring:
       show-sql: true
       properties:
         format_sql:true
+cache:
+  maxSize: 3

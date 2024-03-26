@@ -28,29 +28,33 @@ public class WatchlistController {
         return watchlistService.saveWatchlist(watchlistDTO);
     }
 
-    @GetMapping("/{name}")
-    public  Watchlist findByName(@PathVariable() String name){
-        return watchlistService.findByName(name);
+    @GetMapping("/{id}")
+    public  Watchlist findByName(@PathVariable() Long id){
+        return watchlistService.findById(id);
     }
-    @GetMapping("/all/{name}")
-    public  List<ServerDTO> findAllByName(@PathVariable() String name){
-        return watchlistService.findAllByName(name);
+    @GetMapping("/all/{id}")
+    public  List<ServerDTO> findAllByName(@PathVariable() Long id){
+        return watchlistService.findAllById(id);
     }
 
     @PutMapping("/update")
     public Watchlist updateWatchlist(@RequestBody WatchlistDTO watchlistDTO){
         return  watchlistService.updateWatchlist(watchlistDTO);
     }
+    @PutMapping("/update_status/{name}")
+    public Watchlist updateWatchlistStatus(@PathVariable() String name){
+        return  watchlistService.updateWatchlistStatus(name);
+    }
     @PutMapping("/add_server")
-    public Watchlist addServerToWatchlist(@RequestParam String name, String ip){
-        return  watchlistService.addServerToWatchlist(name, ip);
+    public Watchlist addServerToWatchlist(@RequestParam Long id, String ip){
+        return  watchlistService.addServerToWatchlist(id, ip);
     }
     @DeleteMapping("/remove_server")
-    public Watchlist removeServerFromWatchlist(@RequestParam String name,@RequestParam String ip){
-        return  watchlistService.removeServerFromWatchlist(name, ip);
+    public Watchlist removeServerFromWatchlist(@RequestParam Long id,@RequestParam String ip){
+        return  watchlistService.removeServerFromWatchlist(id, ip);
     }
-    @DeleteMapping("/delete/{name}")
-    public void deleteWatchlist(@PathVariable String name){
-        watchlistService.deleteWatchlist(name);
+    @DeleteMapping("/delete/{id}")
+    public void deleteWatchlist(@PathVariable Long id){
+        watchlistService.deleteWatchlist(id);
     }
 }
