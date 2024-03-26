@@ -20,13 +20,16 @@ public class ServerTypeService {
     private final ServerTypeRepository serverTypeRepository;
     private final ServerTypeCache serverTypeCache;
     private final ServerCache serverCache;
+    private final ServerService serverService;
     public List<ServerType> findAllServerTypes() {
         return serverTypeRepository.findAll();
     }
 
     public ServerType saveServerType(ServerType serverType) {
-        for(Server server : serverType.getServerList())
+        for(Server server : serverType.getServerList()) {
             serverCache.remove(server.getId());
+            serverService.clearCacheById(server.getId());
+        }
         serverTypeCache.put(serverType.getId(),serverType);
         return serverTypeRepository.save(serverType);
     }
@@ -55,6 +58,7 @@ public class ServerTypeService {
             return;
         for(Server server : serverType.get().getServerList()) {
             serverCache.remove(server.getId());
+            serverService.clearCacheById(server.getId());
             server.setServerType(null);
         }
         serverCache.remove(serverType.get().getId());

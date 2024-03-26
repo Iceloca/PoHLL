@@ -5,8 +5,10 @@ import java.net.*;
 
 import iceloca.serverchecker.cache.ServerCache;
 import iceloca.serverchecker.cache.ServerTypeCache;
+import iceloca.serverchecker.cache.WatchlistCache;
 import iceloca.serverchecker.model.Server;
 import iceloca.serverchecker.model.ServerType;
+import iceloca.serverchecker.model.Watchlist;
 import iceloca.serverchecker.model.dto.ServerDTO;
 import iceloca.serverchecker.repository.ServerRepository;
 import iceloca.serverchecker.repository.ServerTypeRepository;
@@ -27,6 +29,7 @@ public class ServerService {
     private  final ServerTypeRepository serverTypeRepository;
     private final ServerCache serverCache;
     private final ServerTypeCache serverTypeCache;
+    private final WatchlistCache watchlistCache;
     public List<ServerDTO> findAllServers() {
         return serverRepository.findAll().stream()
                 .map(ServerDTOUtility::buildDTOFromServer)
@@ -41,9 +44,7 @@ public class ServerService {
         }
         Server server = ServerDTOUtility.buildServerFromDTO(serverDTO, serverType);
         serverCache.put(server.getId(),server);
-        Server oldServer = findById(server.getId());
-        if(oldServer != null && oldServer.getServerType() != null   )
-            serverTypeCache.remove(server.getServerType().getId());
+        clearCacheById(server.getId());
         return serverRepository.save(server);
     }
 
@@ -52,8 +53,7 @@ public class ServerService {
         if(server != null)
             return server;
         server = serverRepository.findById(id).orElse(null);
-        if(server != null)
-            serverCache.put(server.getId(),server);
+        clearCacheById(id);
         return server;
     }
 
@@ -69,12 +69,7 @@ public class ServerService {
     @Transactional
     public void deleteServer(Long id) {
         serverCache.remove(id);
-        Server oldServer = findById(id);
-        if (oldServer != null) {
-            ServerType serverType = oldServer.getServerType();
-            if (serverType != null)
-                serverTypeCache.remove(serverType.getId());
-        }
+        clearCacheById(id);
         serverRepository.deleteById(id);
     }
 
@@ -92,10 +87,18 @@ public class ServerService {
         if(server == null)
             return null;
         server.setIsUp(checkServer(server.getIp()));
-        if (server.getServerType() != null)
-            serverTypeCache.remove(server.getServerType().getId());
+        clearCacheById(id);
         serverCache.put(server.getId(),server);
         return serverRepository.save(server);
+    }
+    void clearCacheById(Long id){
+        Server server = findById(id);
+        if (server == null)
+            return;
+        if(server.getServerType() != null)
+            serverTypeCache.remove(server.getServerType().getId());
+        for(Watchlist watchlist : server.getWatchlistSet())
+            watchlistCache.remove(watchlist.getId());
     }
 
 
