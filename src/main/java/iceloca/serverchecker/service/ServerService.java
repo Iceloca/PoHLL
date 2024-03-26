@@ -43,17 +43,22 @@ public class ServerService {
             serverType.setName(serverDTO.getServerType());
         }
         Server server = ServerDTOUtility.buildServerFromDTO(serverDTO, serverType);
+        server = serverRepository.save(server);
         serverCache.put(server.getId(),server);
         clearCacheById(server.getId());
-        return serverRepository.save(server);
+        return server;
     }
 
     public Server findById(Long id) {
-        Server server = serverCache.get(id);
+        Server server = null;
+        if(id !=null)
+            server = serverCache.get(id);
         if(server != null)
             return server;
-        server = serverRepository.findById(id).orElse(null);
-        clearCacheById(id);
+        if (id != null) {
+            server = serverRepository.findById(id).orElse(null);
+            serverCache.put(id, server);
+        }
         return server;
     }
 
@@ -92,11 +97,13 @@ public class ServerService {
         return serverRepository.save(server);
     }
     void clearCacheById(Long id){
-        Server server = findById(id);
+        Server server = serverRepository.findById(id).orElse(null);
         if (server == null)
             return;
         if(server.getServerType() != null)
             serverTypeCache.remove(server.getServerType().getId());
+        if (server.getWatchlistSet() == null)
+            return;
         for(Watchlist watchlist : server.getWatchlistSet())
             watchlistCache.remove(watchlist.getId());
     }

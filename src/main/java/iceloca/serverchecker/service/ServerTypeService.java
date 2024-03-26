@@ -41,7 +41,7 @@ public class ServerTypeService {
         return serverType;
     }
     public List<ServerDTO> findAllByName(String name) {
-        return serverTypeRepository.findAllByName(name).stream()
+        return serverTypeRepository.findAllByTypeName(name).stream()
                 .map(ServerDTOUtility::buildDTOFromServer)
                 .toList();
     }
