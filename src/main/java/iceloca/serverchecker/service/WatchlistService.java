@@ -1,5 +1,6 @@
 package iceloca.serverchecker.service;
 
+import iceloca.serverchecker.cache.WatchlistCache;
 import iceloca.serverchecker.model.Server;
 import iceloca.serverchecker.model.Watchlist;
 import iceloca.serverchecker.model.dto.ServerDTO;
@@ -12,11 +13,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -27,9 +25,11 @@ import java.util.Set;
 public class WatchlistService {
     private final WatchlistRepository watchlistRepository;
     private final ServerRepository serverRepository;
-
+    private final WatchlistCache watchlistCache;
     public List<Watchlist> findAllWatchlists() {return watchlistRepository.findAll();}
     public Watchlist saveWatchlist(WatchlistDTO watchlistDTO) {
+        Watchlist watchlist = WatchlistDTOUtility.buildWatchlistFromDTO(watchlistDTO);
+        watchlistCache.put(watchlist.getId(),watchlist);
         return watchlistRepository.save(WatchlistDTOUtility.buildWatchlistFromDTO(watchlistDTO));
     }
     @Transactional
@@ -37,11 +37,20 @@ public class WatchlistService {
         Optional<Watchlist>  watchlist= watchlistRepository.findById(id);
         if (watchlist.isEmpty())
             return;
+        watchlistCache.remove(watchlist.get().getId());
         for(Server server : watchlist.get().getServerSet())
             server.getWatchlistSet().remove(watchlist.get());
         watchlistRepository.deleteById(id);
     }
-    public  Watchlist findById(Long id) {return  watchlistRepository.findById(id).orElse(null);}
+    public  Watchlist findById(Long id) {
+        Watchlist watchlist = watchlistCache.get(id);
+        if(watchlist != null)
+            return watchlist;
+        watchlist = watchlistRepository.findById(id).orElse(null);
+        if(watchlist !=null)
+            watchlistCache.put(watchlist.getId(),watchlist);
+        return  watchlist;
+    }
 
     public Watchlist addServerToWatchlist(Long id, String ip){
         return watchlistRepository.save(editServerSet(id, ip, Boolean.TRUE));
@@ -73,6 +82,7 @@ public class WatchlistService {
         server.setWatchlistSet(watchlistSet);
         serverRepository.save(server);
         watchlist.setServerSet(serverSet);
+        watchlistCache.put(watchlist.getId(),watchlist);
         return watchlist;
     }
     public Watchlist updateWatchlist (WatchlistDTO watchlistDTO){
@@ -83,22 +93,8 @@ public class WatchlistService {
         if(oldWatchlist.isEmpty())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         watchlist.setServerSet(oldWatchlist.get().getServerSet());
+        watchlistCache.put(watchlist.getId(),watchlist);
         return watchlistRepository.save(watchlist);
-    }
-    public Watchlist updateWatchlistStatus (String name){
-        Watchlist watchlist = watchlistRepository.findByName(name);
-        if (watchlist == null)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        RestTemplate restTemplate = new RestTemplate();
-        for(Server server : watchlist.getServerSet()){
-
-            URI url = UriComponentsBuilder.fromUriString("http://localhost:8080/api/servers/update_status")
-                    .queryParam("ip",server.getIp())
-                    .build().toUri();
-
-            restTemplate.put(url,null);
-        }
-        return watchlistRepository.findByName(name);
     }
     public List<ServerDTO> findAllById(Long id) {
         return findById(id).getServerSet()

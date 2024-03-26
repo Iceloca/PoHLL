@@ -41,10 +41,6 @@ public class WatchlistController {
     public Watchlist updateWatchlist(@RequestBody WatchlistDTO watchlistDTO){
         return  watchlistService.updateWatchlist(watchlistDTO);
     }
-    @PutMapping("/update_status/{name}")
-    public Watchlist updateWatchlistStatus(@PathVariable() String name){
-        return  watchlistService.updateWatchlistStatus(name);
-    }
     @PutMapping("/add_server")
     public Watchlist addServerToWatchlist(@RequestParam Long id, String ip){
         return  watchlistService.addServerToWatchlist(id, ip);
